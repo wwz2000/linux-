@@ -1,0 +1,122 @@
+## 初识Linux  
+[root@centos7 ~]#   
+root 代表当前登录用户（Linux当中管理员账号是root）   
+@ 无意义   
+centos7 主机名 ~ 当前目录 （~也表示家目录）  
+ 表示超级用户（普通用户提示符是”$”）  
+### Linux命令格式
+  命令 [选项] [参数]   
+注意：个别命令使用不遵循此格式，当有多个选项时，可以写在一起，简化选项与完整选项 -a 等于 –all  
+#### 简单命令   
+ ls 语法 [选项] [文件或目录等参数]      
+-a 显示所有文件，包括隐藏文件  
+ -l 显示详细信息   
+-d 查看目录属性   
+-h 人性化显示文件大小  
+-i 显示inode   
+-rw-r--r-- 1 root root 605Mar 18 20:28 .jp1.tar.gz   
+-rw-r--r-- - 文件类型   
+ root u所有者 权限为rw-  
+root g所属组 权限为 r-- o      
+其他人 权限为 r--r读 w写 x执行                  
+ 1引用计数，代表这个文件被调 用的次数                 
+605 文件大小 Bit Mar 18     20:28 最后修改时间   
+ . 隐藏文件 jp1.tar.gz 文件名    
+ pwd 显示当前目录     
+cd [目录]   
+cd ~ 进入家目录   
+cd 进入家目录   
+cd - 返回上次的目录   
+cd .. 进入上一级目录   
+cd . 进入当前目录  
+cp [选项] [原文件或目录] [目标目录]  
+选项 -r 复制目录   
+-p 连带文件属性复制 
+#### Linux中date命令    
+语法：   
+date [OPTION]... [+FORMAT]                
+date [-u|--utc|--universal] [MMDDhhmm[[CC]YY][.ss]]     
+date 可以用来显示或设定系统的日期与时间。
+例如：     
+date -s //设置当前时间，只有root权限才能设置，其他只能查看。     
+date -s 20180923 //设置成20180923   
+date -s 01:01:01 //设置具体时间，不会对日期做更改    
+date -s “01:01:01   2018-09-23″ //这样可以设置全部时间    
+date -s “01:01:01 20180923″  //这样可以设置全部时间     
+date -s “2018-09-23   01:01:01″ //这样可以设置全部时间    
+date -s “20180923 01:01:01″  //这样可以设置全部时间    
+date +%Y%m%d           //显示现在天年月日      
+date +%Y%m%d --date="+1 day"  //显示后一天的日期    
+date +%Y%m%d --date="-1 day" //显示前一天的日期    
+date +%Y%m%d --date="-1 month" //显示上一月的日期    
+date +%Y%m%d --date="+1 month" //显示下一月的日期    
+date +%Y%m%d --date="-1 year" //显示前一年的日期     
+date +%Y%m%d --date="+1 year" //显示下一年的日期     
+#### Linux中搜索命令    
+ whereis 命令      
+搜索命令所在的路径及帮助文档所在位置；     
+不能操作linux自带的shell命令，         如 cd 选项：          
+-b 只查找可执行文件      
+-m 只查找帮助文档       
+which 命令     
+能查看命令的可执行文件路径以及别名      
+不能操作linux自带的shell命令，      
+如 cd         
+echo $PATH 环境变量都用:分隔    
+PATH定义系统搜索命令的路径（或绝对路径执行）     
+/usr/lib4/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/usr/java/jdk1.7.0_75/bin:/root/.local/bin:/root/bin Linux
+#### linux中帮助命令
+1、help Command   
+适用于内部命令   
+例如：type cd
+```bash
+[root@centos7 ~]#type cd
+cd is a shell builtin
+[root@centos7 ~]#type ls
+ls is aliased to `ls --color=auto'
+[root@centos7 ~]#help ls
+-bash: help: no help topics match `ls'.  Try `help help' or `man -k ls' or `info ls'.
+```
+2、Command –help/-h
+适用于外部命令
+例如：ls --help
+3、man Command
+注manual 手册是分章节的；man # Command （#表示章节号）
+语法  
+man(选项)(参数)  
+选项  
+-a：在所有的man帮助手册中搜索；   
+-f：等价于whatis指令，显示给定关键字的简短描述信息；   
+-P：指定内容时使用分页程序；   
+-M：指定man手册搜索的路径。 
+#### linux history命令
+history命令用于显示指定数目的指令命令，读取历史命令文件中的目录到历史命令缓冲区和将历史命令缓冲区中的目录写入命令文件。   
+该命令单独使用时，仅显示历史命令，在命令行中，可以使用符号!执行指定序号的历史命令。例如，要执行第2个历史命令，则输入!2。     
+历史命令是被保存在内存中的，当退出或者登录shell时，会自动保存或读取。在内存中，历史命令仅能够存储1000条历史命令，该数量是由环境变量HISTSIZE进行控制。         
+语法    
+history(选项)(参数)
+选项     
+-c：清空当前历史命令；   
+-a：将历史命令缓冲区中命令写入历史命令文件中；   
+-r：将历史命令文件中的命令读入当前历史命令缓冲区；   
+-w：将当前历史命令缓冲区命令写入历史命令文件中。         
+### liunx文件系统结构    
+常见目录作用   
+/bin 用于保存命令的目录   
+/sbin 用于保存命令的目录（只有root能用）   
+/usr/bin 用于保存命令的目录  
+/usr/sbin 用于保存命令的目录（只有root能用）  
+/boot启动目录，系统启动的文件都放这里，一般不动该目录  
+/dev 该目录下存放的都是设备相关的文件，一般也不要去动   
+/etc 主要存放配置文件的目录    
+/home 是普通用户目录 (普通用户对应目录下可以随便放文件)   
+/root 是超级用户目录（root用户对应目录下可以随便放文件）   
+/lib与/lb64 存放linux系统函数库    
+/mnt 空目录，用于挂在外接存储设备  
+/media 空目录，用于挂在外接存储设备   
+/misc 空目录，用于挂在外接存储设备(在centos6没有，存在centos7）   
+/proc 是内存过载点；这两个目录的内容直接写在内存，因此不能直接操作    
+/sys 是内存过载点；这两个目录的内容直接写在内存，因此不能直接操作    
+/temp 临时目录（随便放文件）   
+/usr 系统软件资源目录     
+/var 系统相关动态文档内容（如log，crash等）        
