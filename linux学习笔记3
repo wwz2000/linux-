@@ -1,0 +1,614 @@
+
+命令模式操作  
+	字符编辑  
+		X删除光标处的字符   
+		数字加X删除多个字符   
+		xp  
+		~转换大小写  
+		J删除当前换行符  
+	替换  
+		r替换光标处的字符  
+		R切换到替换模式  
+	删除命令   
+		d删除命令   
+		d$  
+		dd删除整行  
+			#dd删除多行  
+		dG删除光标到最后  
+		dgg删除光标到开头  
+	复制命令  
+		y复制命令  
+		  #yy复制多行整行  
+	改变命令  
+		c删除自动切换到插入模式  	
+		cc整行  
+扩展的命令模式     
+
+
+
+
+
+
+
+
+
+
+
+
+SHELL脚本编程基础   
+	编程基础  
+		程序   
+			程序：算法+数据结构   
+			数据：是程序的核心   
+			数据结构：数据在计算机的类型和组织方式   
+			算法：处理数据的方式
+	    程序编程风格  
+			过程式：逻辑结构  
+			对象式：以数据为中心，指令服务于数据  
+		shell程序：提供了编程能力，解释执行   
+    环境变量   
+		bash内建的环境变量   
+			PATH 环境变量   
+			SHELL 编写SHELL脚本，注释很重要，便于维护   
+				export可查看所有环境变量   
+				pstree查看父子进程   
+			USER   
+			UID  
+			HOME  
+			SHLVL进程的嵌套深度   
+			```bash     
+				[root@centos7 ~]#echo $SHLVL        
+				1            
+				[root@centos7 ~]#bash          
+				[root@centos7 ~]#echo $SHLVL           
+				2        
+				[root@centos7 ~]#exit        
+				exit     
+				[root@centos7 ~]#exit      
+				logout     
+				```
+            LANG 语言   
+			    [root@centos7 ~]#echo $LANG   
+				en_US.UTF-8   
+            MAIL 用户邮箱路劲   
+			如果切换用户，则使用完全切换才能跟新邮箱路径   
+				[root@centos7 ~]#echo $MAIL   
+				/var/spool/mail/root  
+				[root@centos7 ~]#su wwz   
+				[wwz@centos7 root]$ echo $MAIL   
+				/var/spool/mail/root   
+				[wwz@centos7 root]$ su - wwz   
+				Password:    
+				Last login: Thu Oct 11 09:57:29 CST 2018 on pts/1   
+				[wwz@centos7 ~]$ echo $MAIL    
+				/var/spool/mail/wwz   
+            BAHSPID,PPID 当前进程ID，父进程ID    
+			当前进程的ID    
+				[root@centos7 wwz]#echo $BASHPID   
+				4352   
+				echo $$ 也可查看当前进程   
+			父进程ID   
+				[root@centos7 wwz]#echo $PPID    
+				4346   
+                $_ 前一个命令的最后一个字符串   
+	    man bash  查看所有bash命令帮助    
+    只读和位置变量   
+	只读:只能声明   
+		readonly pi=3.14  定义pi为常量3.14，定以后不能更改   
+		pi=4 是不能进行的，随着shell结束后，变量定义也结束   
+    查看只读变量   
+		-p    
+	位置变量   
+		参数调用    
+           $0-9,${10} 例如test.sh {1..10}   
+		$0 自身文件附带目录，`basename $0` 只有文件   
+		$# 参数的个数  {0..10}   
+		$* 所有的参数   
+		   test.sh a b c  会将adc认为一个整体   
+		$@ 则将abc 认为每个单独的参数      
+			例如vim text1.sh  
+					echo “1th arg is $*”   
+					test2.sh “$*”  
+                vim test2.sh   
+				    echo “1th arg is $1”   
+				bash text1.sh  a b c    结果都是两行 a b c    
+				如果换位$@ 结果则为  a b c    a     
+	    set unset  变量    
+    退出状态    
+		结束状态有一个数字，用命令echo $？查看   
+		0表示成功   
+		[1-255]表示失败    
+		这里的echo $_ 对于脚本来说只显示最后一个命令执行的情况   
+			也可以自己命名设置 echo 100(状态吗）作为结束   
+			ping -c1 192.168.1.34 &> /dev/null  节省资源利用   
+			echo $_   返回数字查看执行结果   
+	退出自定义状态码   
+		在脚本中取决于执行的最后一条命令    
+
+		
+		
+		
+    预算算数   
+		bash中算数运算 man let  
+		let var=算数表达式   
+		let var=1+2   echo $var  3   
+		let n=2**3 echo $n  8   
+		let n= 100%3 echo $n  1   
+		n=$[3*5] echo $n   15   
+		n=$((2*5))  
+		exper 3 + 4  
+		declare -i n=3+6  
+		echo 3+6 |bc  
+		示例   
+			i=10；let j=i++；echo j=$j     j= 10   
+			++i                            j= 11   
+			随机生成1-63数字  
+			echo $[RANDOM%63+1]  
+			echo $[-RANDOM%63+1]   
+    赋值   
+		i+=10   等价于i=i+10   
+	逻辑运算   
+		与：   
+			12与24  
+			01100  
+		    11000   
+			01000    十进制8   
+			[root@centos7 data]#echo $[12&24]   
+			8   
+		或：|   
+		非：！  
+		异或：^ 相同为0，不同为1   
+		同或：  相同为1，不同为0  
+	短路运算  
+		短路与：&&   
+		短路或：||   
+	文件的判断   
+	    [[ "$1" -eq 0 ]]  [[ $1 -eq 0 ]] 变量是为空或0  
+		[ -r /etc/passwd ] && echo ture || echo flause  
+		判断文件的后缀，以及添加权限  
+		file=check.sh;[[ $fiel =~ \.sh ]] && [ -x $file  ] &&   chmod +x $file   
+		-a  并且  [-r file -a -w file2] && echo ture || echo    falous  
+		-0   或    
+	    [-z “$HOSTNAME” -O "$HOSTNAME"=="localhost。locatldomain"] && hostname   
+    read 命令读入内容   
+		一一对应   
+		[root@centos7 data]#read name   
+		wang  
+		[root@centos7 data]#echo $name  
+		wang  
+		-p 制定要显示的提示  
+		-s 静默输入，一般用于密码  
+		read -s -p “please input passwd：” pass   
+		-n N制定输入的字符长度N   
+		read -n 5 name  
+		12345   
+		-d “字符” 输入结束符  
+		read -d a name  
+		-t N TIMEOUT为N秒
+		read -t 60   
+		read 从标准输入中读取，给每一个单词分配一个变量，所有剩余单词被分配给最后一个变量   
+            [root@centos7 data]#read x y z < f11  
+			-bash: f11: No such file or directory   
+			[root@centos7 data]#cat f11   
+			cat: f11: No such file or directory  
+			[root@centos7 data]#echo a  
+			a  
+			[root@centos7 data]#echo a b c ff1  
+			a b c ff1   
+			[root@centos7 data]#echo a b c  > ff1  
+			[root@centos7 data]#cat ff1  
+			a b c  
+			[root@centos7 data]#read x y z < ff1  
+			[root@centos7 data]#echo $x  
+			a   
+			[root@centos7 data]#echo $y   
+			b
+			[root@centos7 data]#echo $z
+			c   
+			这种形式不允许也不成立   
+			[root@centos7 data]#cat ff1 || read x y z   
+			正确的形式应该是   
+			read i j k <<<“xx yy zz”   
+			echo $1   
+			XX   
+			
+	(声明环境变量)   
+		export name   
+		declear   
+echo “1st arg is $1"    
+
+
+
+文件查找和压缩    
+	文件查找：locate，find    
+		非实时查找（数据库查找）：locate    
+		实时查找：find    
+	locate命令   
+		-i 不区分大小写   
+		-n 	N 只列举前N和匹配的项目   
+		-r 使用正则表达式    
+	示例  
+	搜索名称或路径中带有“conf”的文件  
+		locate conf  
+	使用Regex来搜索以“.conf”结尾的文件  
+		locate -r ‘\.conf$’  
+	find   
+	查找条件  
+		find /data -maxdepth 2 -mindepth 2  
+		find /data -name “*test*”  
+指搜索层级  
+		-maxdepth level 最大搜索目录深度,指定目录为第1级  
+		-mindepth level 最小搜索目录深度  
+		先处理目录内的文件，再处理目录  
+		-depth  
+		根据文件名和inode查找：
+		-name "文件名称"：支持使用glob   *, ?, [], [^]   
+		-iname "文件名称"：不区分字母大小写   
+		-inum n 按inode号查找  
+		-samefile name 相同inode号的文件   
+		-links n 链接数为n的文件    
+		-regex “PATTERN”：以PATTERN匹配整个文件路径，而非文件名称  
+根据属主、属组查找：    
+		-user USERNAME：查找属主为指定用户(UID)的文件    
+		-group GRPNAME: 查找属组为指定组(GID)的文件    
+		-uid UserID：查找属主为指定的UID号的文件    
+		-gid GroupID：查找属组为指定的GID号的文件    
+		-nouser：查找没有属主的文件    
+		-nogroup：查找没有属组的文件    
+根据文件类型查找：       
+     type TYPE:    
+		f: 普通文件
+		d: 目录文件  
+		l: 符号链接文件  
+		s：套接字文件  
+		b: 块设备文件  
+		c: 字符设备文件  
+		p: 管道文件  
+	  空文件或目录   
+		-empty   
+		find /app -type d -empty   
+	组合条件：  
+		与：-a  
+		或：-o  
+		非：-not, !   
+	  德·摩根定律：  
+		(非 A) 或 (非 B) = 非(A 且 B)  
+		(非 A) 且 (非 B) = 非(A 或 B)  
+		示例：  
+		!A -a !B = !(A -o B)  
+		!A -o !B = !(A -a B)  
+	根据文件大小来查找：  
+		-size [+|-]#UNIT  
+			常用单位：k, M, G，c（byte）   
+		#UNIT: (#-1, #]  
+			如：6k 表示(5k,6k]  
+			find /root -size 10M   
+		-#UNIT：[0,#-1]  
+			如：-6k 表示[0,5k]  
+			find /root -size +5M -size -10M   
+		+#UNIT：(#,∞)  
+			如：+6k 表示(6k,∞)   
+		（1023,1024），（0,1M）    
+		find /root -size +5M -size -10M   
+	根据时间戳：   
+		以“天”为单位   
+		-atime [+|-]#,   
+		#: [#,#+1)  
+		+#: [#+1,∞]  
+		-#: [0,#)   
+		-mtime  
+		-ctime  
+		以“分钟”为单位  
+		-amin  
+		-mmin  
+		-cmin  
+	根据权限查找：  
+		-perm [/|-]MODE  
+		find . -perm 666  
+			MODE: 精确权限匹配  
+			/MODE：任何一类(u,    g,o)对象的权限中只要能一位匹配即可，或关系，+  从centos7开始淘汰  
+			-MODE：每一类对象都必须同时拥有指定权限，与关系0 表示不关注  
+			find -perm 755 会匹配权限模式恰好是755的文件  
+			只要当任意人有写权限时，find -perm +222就会匹配  
+			只有当每个人都有写权限时，find -perm -222才会匹配  
+			只有当其它人（other）有写权限时，find -perm -002才会匹配  
+	处理动作  
+		-print：默认的处理动作，显示至屏幕  
+		-ls：类似于对查找到的文件执行“ls -l”命令
+		-delete：删除查找到的文件
+		-fls file：查找到的所有文件的长格式信息保存至指定文件中
+		-ok COMMAND {} \; 对查找到的每个文件执行由COMMAND指定的命令，对于
+        每个文件执行命令之前，都会交互式要求用户确认
+        -exec COMMAND {} \; 对查找到的每个文件执行由COMMAND指定的命令
+		{}: 用于引用查找到的文件名称自身
+		find传递查找到的文件至后面指定的命令时，查找到所有符合条件的文件一次性
+		  传递给后面的命令	
+	参数替换xargs
+		由于很多命令不支持管道|来传递参数，而日常工作中有这个必要，所以就有了
+		xargs命令
+		xargs用于产生某个命令的参数，xargs 可以读入 stdin 的数据，并且以空格符
+		或回车符将 stdin 的数据分隔成为arguments
+		注意：文件名或者是其他意义的名词内含有空格符的情况
+		有些命令不能接受过多参数，命令执行可能会失败，xargs可以解决
+		示例：
+		ls f* |xargs rm
+		find /sbin -perm +700 |ls -l 这个命令是错误的
+		find /sbin -perm +7000 | xargs ls –l 查找特殊权限的文件
+		find和xargs格式：find | xargs COMMAND
+    Gnome 搜索工具
+		位置->搜索文件……
+		图形化搜索工具，可搜索
+		• 命令
+		• 内容
+		• 用户/组群
+		• 大小
+		• 修改时间 
+	压缩、解压缩及归档工具
+		file-roller
+		compress/uncompress: .Z
+		gzip/gunzip: .gz
+		bzip2/bunzip2: .bz2
+		xz/unxz: .xz
+		zip/unzip
+		tar
+		cpio
+		compress/uncompress
+		compress [-dfvcVr] [-b maxbits] [file ...]
+		  compress file   压缩后变为file.z ，源文件file删除
+		  -d: 解压缩，相当于uncompress
+		  -c: 结果输出至标准输出,不删除原文件
+		  compress -c file > file.z
+		  -v: 显示详情
+		uncompress 解压缩
+		zcat file.Z >file
+		gzip/gunzip
+		gzip [OPTION]... FILE ...
+		  -d：解压缩，相当于gunzip
+		  -c：结果输出至标准输出，保留原文件不改变
+		  -#：1-9，指定压缩比，值越大压缩比越大
+		zcat：不显式解压缩的前提下查看文本文件内容
+		示例：
+		  gzip -c messages >messages.gz
+		  gzip -c -d messages.gz > messages
+		  zcat messages.gz > messages
+		  cat messages | gzip > m.gz
+		bzip2/bunzip2/bzcat
+		bzip2 [OPTION]... FILE ...
+		  -k：keep, 保留原文件
+		  -d：解压缩
+		  -#：1-9，压缩比，默认为9
+		bzcat：不显式解压缩的前提下查看文本文件内容
+		xz/unxz/xzcat
+		xz [OPTION]... FILE ...
+		  -k: keep, 保留原文件
+		  -d：解压缩
+		  -#：1-9，压缩比，默认为6
+		unxz file.xz 解压缩
+		xzcat: 不显式解压缩的前提下查看文本文件内容
+		zip/unzip
+		打包压缩
+		  zip –r /backup/sysconfig /etc/sysconfig/
+		解包解压缩
+		  unzip sysconfig.zip
+		  cat /var/log/messages | zip messages -
+		  unzip -p message > messag
+		tar工具
+		tar（Tape ARchive，磁带归档的缩写）
+		tar [OPTION]...
+		  (1) 创建归档
+		  tar -cpvf /PATH/FILE.tar FILE...
+		  (2) 追加文件至归档： 注：不支持对压缩文件追加
+		  tar -r -f /PATH/FILE.tar FILE...
+		  (3) 查看归档文件中的文件列表
+		  tar -t -f /PATH/FILE.tar
+		  (4) 展开归档
+		  tar -x -f /PATH/FILE.tar
+		  tar -x -f /PATH/FILE.tar -C /PATH/
+		  (5) 结合压缩工具实现：归档并压缩
+		  -j: bzip2, -z: gzip, -J: xz
+		  -exclude 排除文件
+		  tar zcvf /root/a3.tgz --exclude=/app/host1 --exclude=/app/host2 /app
+		-T选项指定输入文件,-X选项指定包含要排除的文件列表
+		  tar zcvf mybackup.tgz -T /root/includefilelist -X /root/excludefilelist
+		-splist:：分割一个文件为多个文件
+		  分割大的 tar 文件为多份小文件
+		  split –b Size –d tar-file-name prefix-name
+		  split -b 1M –d mybackup.tgz mybackup-parts
+		  split -b 1M mybackup.tgz mybackup-parts
+		  合并：
+		  cat mybackup-parts* > mybackup.tar.gz	
+        cpio
+        功能：复制文件从或到归档
+		cpio命令是通过重定向的方式将文件进行打包备份，还原恢复的工具，它可以解压以
+		  “.cpio”或者“.tar”结尾的文件
+		cpio [选项] > 文件名或者设备名
+		cpio [选项] < 文件名或者设备名
+		 选项
+		  -o 将文件拷贝打包成文件或者将文件输出到设备上
+		  -O filename 输出到指定的归档文件名
+		  -A 向已存在的归档文件中追加文件
+		  -i 解包，将打包文件解压或将设备上的备份还原到系统
+		  -I filename 对指定的归档文件名解压
+		  -t 预览，查看文件内容或者输出到设备上的文件内容
+		  -F filename 使用指定的文件名替代标准输入或输出
+		  -d 解包生成目录，在cpio还原时，自动的建立目录
+		  -v 显示打包过程中的文件名称	  
+		  
+文本处理工具Sed
+	Stream EDitor, 行编辑器
+	sed是一种流编辑器，它一次处理一行内容。处理时，把当前处理的行存储在临时
+	缓冲区中，称为“模式空间”（pattern space），接着用sed命令处理缓冲区中的
+	内容，处理完成后，把缓冲区的内容送往屏幕。然后读入下行，执行下一个循环。
+	如果没有使诸如‘D’的特殊命令，那会在两个循环之间清空模式空间，但不会清
+	空保留空间。这样不断重复，直到文件末尾。文件内容并没有改变，除非你使用重
+	定向存储输出。
+	功能：主要用来自动编辑一个或多个文件,简化对文件的反复操作,编写转换程序等
+sed工具
+	用法：
+	sed [option]... 'script' inputfile...
+	常用选项：
+	-n 不输出模式空间内容到屏幕，即不自动打印
+	-e 多点编辑
+	-f /PATH/SCRIPT_FILE 从指定文件中读取编辑脚本
+	-r 支持使用扩展正则表达式
+	-i.bak 备份文件并原处编辑
+	script:
+		'地址命令'(地址要处理的文本默认所有行)
+	地址定界：
+	(1) 不给地址：对全文进行处理
+		sed ‘’ /etc/passwd  
+	(2) 单地址：
+		#: 指定的行，$：最后一行
+		/pattern/：被此处模式所能够匹配到的每一行
+		sed  -n ‘3p’ /etc/passwd（不跟文件可手动输入内容）
+		sed -n ‘/^u/p’ /etc/passwd  
+	(3) 地址范围：
+		#,#
+		#,+#
+		‘3,6p’，‘3,+6p’ （3行到6行打印，3行后再加6行打印）
+		/pat1/,/pat2/
+		‘/^ftp/,/^gtf/p’ （以ftp开头到gtp开头之间的所有文本打印）
+		#,/pat1/
+	(4) ~：步进
+		1~2 奇数行
+		以2为步进
+		2~2 偶数行	
+	编辑命令
+		d 删除模式空间匹配的行，并立即启用下一轮循环
+		p 打印当前模式空间内容，追加到默认输出之后
+		a [\]text 在指定行后面追加文本，支持使用\n实现多行追加
+		i [\]text 在行前面插入文本
+		c [\]text 替换行为单行或多行文本
+		w /path/file 保存模式匹配的行至指定文件
+		r /path/file 读取指定文件的文本至模式空间中匹配到的行后
+		= 为模式空间中的行打印行号
+		! 模式空间中匹配行取反处理
+	s/// 查找替换,支持使用其它分隔符，s@@@，s###
+  替换标记：
+		g 行内全局替换
+		p 显示替换成功的行
+		w /PATH/FILE 将替换成功的行保存至文件中
+	高级编辑命令
+		P： 打印模式空间开端至\n内容，并追加到默认输出之前
+		h: 把模式空间中的内容覆盖至保持空间中
+		H：把模式空间中的内容追加至保持空间中
+		g: 从保持空间取出数据覆盖至模式空间
+		G：从保持空间取出内容追加至模式空间
+		x: 把模式空间中的内容与保持空间中的内容进行互换
+		n: 读取匹配到的行的下一行覆盖至模式空间
+		N：读取匹配到的行的下一行追加至模式空间
+		d: 删除模式空间中的行
+		D：如果模式空间包含换行符，则删除直到第一个换行符的模式空间中的文本，
+		并不会读取新的输入行，而使用合成的模式空间重新启动循环。如果模式空间
+		不包含换行符，则会像发出d命令那样启动正常的新循中
+软件包管理
+    包管理器
+		二进制应用程序的组成部分：
+		二进制文件、库文件、配置文件、帮助文件
+	    程序包管理器：
+		debian： deb文件, dpkg包管理器
+		redhat： rpm文件, rpm包管理器
+		rpm： Redhat Package Manager
+		RPM Package Manager
+		包命名
+		源代码：name-VERSION.tar.gz|bz2|xz
+		VERSION: major.minor.release
+		rpm包命名方式：
+		name-VERSION-release.arch.rpm
+		例：bash-4.2.46-19.el7.x86_64.rpm
+		VERSION: major.minor.release
+		release：release.OS
+		常见的arch：
+		x86: i386, i486, i586, i686
+		x86_64: x64, x86_64, amd64
+		powerpc: ppc
+		跟平台无关：noarch
+	包命名和工具
+	包：分类和拆包
+		Application-VERSION-ARCH.rpm: 主包
+		Application-devel-VERSION-ARCH.rpm 开发子包
+		Application-utils-VERSION-ARHC.rpm 其它子包
+		Application-libs-VERSION-ARHC.rpm 其它子包
+		包之间：可能存在依赖关系，甚至循环依赖
+	解决依赖包管理工具：
+		yum：rpm包管理器的前端工具
+		apt-get：deb包管理器前端工具
+		zypper: suse上的rpm前端管理工具
+		dnf: Fedora 18+ rpm包管理器前端管理工具
+	    库文件
+		查看二进制程序所依赖的库文件
+		ldd /PATH/TO/BINARY_FILE
+		管理及查看本机装载的库文件
+		ldconfig 加载库文件
+		/sbin/ldconfig -p: 显示本机已经缓存的所有可用库文件名及文件路径
+		映射关系
+		配置文件：/etc/ld.so.conf, /etc/ld.so.conf.d/*.conf
+		缓存文件：/etc/ld.so.cache
+	程序包管理器：
+		功能：将编译好的应用程序的各组成文件打包一个或几个程序包文件，从而
+		方便快捷地实现程序包的安装、卸载、查询、升级和校验等管理操作
+		包文件组成 (每个包独有)
+		RPM包内的文件
+		RPM的元数据，如名称，版本，依赖性，描述等
+		安装或卸载时运行的脚本
+      数据库(公共)：/var/lib/rpm
+		程序包名称及版本
+		依赖关系
+		功能说明
+		包安装后生成的各文件路径及校验码信息
+	程序包的来源
+	    管理程序包的方式：
+		使用包管理器：rpm
+		使用前端工具：yum, dnf
+	    获取程序包的途径：
+		(1) 系统发版的光盘或官方的服务器
+		CentOS镜像：
+		https://www.centos.org/download/
+		http://mirrors.aliyun.com
+		http://mirrors.sohu.com
+		http://mirrors.163.com
+		(2) 项目官方站点
+		(3) 第三方组织：
+		Fedora-EPEL：
+		Extra Packages for Enterprise Linux
+		Rpmforge:RHEL推荐，包很全
+		搜索引擎：
+		http://pkgs.org
+		http://rpmfind.net
+		http://rpm.pbone.net
+		https://sourceforge.net/
+		(4) 自己制作
+		注意：第三方包建议要检查其合法性
+		来源合法性,程序包的完整性
+	rpm包管理
+		CentOS系统上使用rpm命令管理程序包：
+		安装、卸载、升级、查询、校验、数据库维护
+		安装：
+		rpm {-i|--install} [install-options] PACKAGE_FILE…
+		-v: verbose
+		-vv:
+		-h: 以#显示程序包管理执行进度
+		rpm -ivh PACKAGE_FILE ...			
+				
+		
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
