@@ -1,0 +1,761 @@
+### linux 系统结构  
+/boot 与系统启动相关的文件  
+/bin  系统命令二级制程序文件  
+/sbin root用户的系统命令二进制程序文件  
+/etc  系统的配置文件  /etc/proc/centos-release  /etc/motd     /etc/issue  /etc/profile  /etc/DIR_COLOLRS  
+/home 用户的家目录  
+/dev  系统的外设，如硬盘等           /dev/sda  sp0 null  random
+/media 系统挂载，挂载点文件      
+/sys  
+/mnt  零时文件挂载点  
+/root 系统管理员，超级用户  
+/tmp  系统运行过程有关的零时文件  
+/var  动态的数据，如run ，log，spoll  
+/usr  操作系统大部分文件  
+/pro  内存有关的文件  
+/lib  数据库  
+/opt  第三方程序安装位置   
+/srv  系统上运行的服务用到的数据   
+### 文件类型      
+- 普通文件   
+d 目录文件  
+b 块设备  
+c 字符设备   
+l 符号链接文件   
+p 管道文件pipe  
+s 套接字文件socket   
+显示当前目录   
+pwd   
+-P 显示真实五里路径  
+-L 显示连接路径（默认） 
+
+
+### 文件通配符  
+*匹配另个或多个字符   
+[root@centos7 data]#ls *.conf
+fa1.conf  fa3.conf  fb2.conf  fc1.conf  fc3.conf
+fa2.conf  fb1.conf  fb3.conf  fc2.conf
+
+？匹配任何单个字符    
+[root@centos7 data]#ls fa?.conf
+fa1.conf  fa2.conf  fa3.conf   
+
+~当前用户家目录    
+~mage用户的mage目录   
+~+当前工作目录   
+~-前一个工作目录   
+[a-z],[0-9],[A-z]匹配数字字母人一个 
+```bash  
+[root@centos7 data]#ls f*[1-3].conf   
+fa1.conf  fa3.conf  fb2.conf  fc1.conf  fc3.conf  
+fa2.conf  fb1.conf  fb3.conf  fc2.conf 
+``` 
+
+[123mnh]匹配1,2，3，m，n，h  
+[wang]匹配；列表中任何一个字符 
+```bash  
+[root@centos7 data]#ls f*[12].conf  
+fa1.conf  fa2.conf  fb1.conf  fb2.conf  fc1.conf  fc2.conf 
+``` 
+[^wang]取反 
+```bash 
+[root@centos7 data]#ls *[^1-2].conf  
+fa3.conf  fb3.conf  fc3.conf   
+```
+
+
+### touch 【option】 file（文件头部特殊识别文件类型）  
+可以穿件文件  
+可以刷新文件时间  
+不修改内容  
+-a   改变atime  ctime  
+-m   改变atime  mtime  
+-t  [[CC]YY]MMDDhhmm.[ss]  
+```bash
+root@centos7 ~]#stat /data  
+Context: system_u:object_r:etc_runtime_t:s0  
+Access: 2018-09-25 10:00:41.319798144 +0800  
+Modify: 2018-09-25 10:00:39.636772337 +0800  
+Change: 2018-09-25 10:00:39.636772337 +0800  
+```
+```bash
+[root@centos7 ~]#touch -t 202010101010.10 /data  
+[root@centos7 ~]#stat /data  
+Context: system_u:object_r:etc_runtime_t:s0  
+Access: 2020-10-10 10:10:10.000000000 +0800  
+Modify: 2020-10-10 10:10:10.000000000 +0800  
+Change: 2018-09-25 10:38:10.928963251 +0800  
+```
+
+-c   文件不存在，不创建文件  
+
+### 复制文件和目录  cp  
+cp [OPTION] [-T]SOURCE DEST  
+CP [OPTION]... SOUECE... DERCTORY   
+CP [OPTION].. -t DERCTORY SOURCE...  
+CP SRC DEST  
+-f   删除重建  
+-i   覆盖前提示是否覆盖  
+-n   不覆盖  
+-u   追加新内容  
+-v   显示运行过程  
+-p   保持文件属性  
+-a   归档（-av经常一起用）  
+-b   目标存在，覆盖前先备份  
+-d   保留链接属性(默认复制的是指向的文件) 
+```bash 
+[root@centos7 data]#cp /etc/grub2.cfg /data  
+[root@centos7 data]#ll  
+-rw-r--r--. 1 root root 4243 Sep 25 14:32 grub2.cfg  
+[root@centos7 data]#ll /etc/grub2.cfg   
+lrwxrwxrwx. 1 root root 22 Sep 19 11:49 /etc/grub2.cfg ->   ../boot/grub2/grub.cfg  
+[root@centos7 data]#ll /boot/grub2/grub.cfg  
+-rw-r--r--. 1 root root 4243 Sep 19 11:59 /boot/grub2/grub.cfg  
+[root@centos7 data]#cp -d /etc/grub2.cfg /data  
+[root@centos7 data]#ll  
+lrwxrwxrwx. 1 root root 22 Sep 25 14:40 grub2.cfg ->     ../boot/grub2/grub.cfg  ```
+--backup  目标存在，覆盖前制作备份加数字后缀  
+```bash
+[root@centos7 data]#ls  
+a1  data      fa2.conf  fb1.conf  fb3.conf  fc2.conf  
+a2  fa1.conf  fa3.conf  fb2.conf  fc1.conf  fc3.conf  
+[root@centos7 data]#cp a1 a2 --backup   
+cp: overwrite ‘a2’? y  
+[root@centos7 data]#ls  
+a1  a2~   fa1.conf  fa3.conf  fb2.conf  fc1.conf  fc3.conf  
+a2  data  fa2.conf  fb1.conf  fb3.conf  fc2.conf  
+```
+-r/R    递归（文件夹目录复制时要到）  
+注意：当复制的是目录，目标目录子目录不存在时，则在父目录下新建目录或覆盖，  
+      当目标目录的子目录存在时，在其子目录下下再次新建目录并覆盖。
+
+### 移动和重命名文件     
+mv[OPTION]  
+-b 目标存在，覆盖前先备份  
+删除  
+rm[OPTION]..FILE  	
+-i 交互式  
+-f 强制删除  
+-r 递归    
+
+
+> /boot/     删除文件，快速释放空间
+>>  
+
+
+
+### 目录操作
+
+tree  显示目录树  
+-d         只显示目录  
+-L lever   制定显示的层级数目  
+-P pattern 只显示有指定PATTERN 匹配的路径 
+```basha
+[root@centos7 data]#tree /root  
+/root  
+├── anaconda-ks.cfg  
+├── Desktop  
+├── Documents  
+├── Downloads  
+├── initial-setup-ks.cfg  
+├── Music  
+├── Pictures  
+├── Public  
+├── Templates  
+└── Videos  
+
+8 directories, 2 files
+```
+
+
+### 创建目录
+
+mkdir  
+-p 自动创建不存在的目录（也可以与-pv一起用）  
+rmkdir 智能删除空目录（没有子目录）  
+rm-r  递归删除目录树（所有目录）  
+ 
+ 
+### 索引节点  
+inode 包含文件系统所有的文件列表  
+一个节点（索引节点）是一个表项，包含文件的信息（元数据）  
+inode 节点表  
+
+### 硬链接  
+1  centos7 inode号为64的一般是挂载点  
+   ls di / /boot /date  
+   centos6   则为2  
+2  硬链接  一个文件起多个名字  
+   ln /root/f1 /root/f11  共用（指向）一块data空间，  
+   属于同一个文件，大小相同。  
+   链接数就是文件的名称数，相同节点号  
+   删除源文件，链接任然有效  
+   删除源文件，链接任然有效  
+3  硬链接不能跨分区，设备，可以同一分区跨文件  
+    只支持文件，不支持目录  
+### 软连接（符号链接）  
+1   ln -s f2 f2-link  
+    软连接不是同一个文件，但是功能相同  
+	指针文件，删除原始文件后，链接也失效  
+	创建软连接不增长链接数（不变），不同节点号  
+2   支持文件夹，跨分区。文件的大小是路径大小  
+3   指向文件名，不是同时指向数据空间  
+4   重点掌握相对路径，特殊一般的相对路径（不是相对于当前工作目录而是一定是相对于软连接文件的路径）  
+确定文件内容  
+1	file命令（文件头部特殊识别文件类型）       reset（重置环境）  
+2   -b   
+    -f 多个文件  
+	-F   
+	-l   
+标准输入输出  
+输入输出重定向  
+1	程序  指令+数据  
+2	输出   hostname > /dev/pts/n  
+3   who > who.log   清空创建，覆盖文件   
+    who >> who.log  不覆盖，不新建，追加内容     	
+4   set -c  禁止覆盖，可追加     
+    set +c   可以覆盖  
+	>| 强行覆盖  
+	2> 错误输出（输处的错误重定向）  
+5   标准输出 
+```bash 
+[root@centos7 data]# ll   
+-rw-r--r--. 1 root root 0 Sep 26 22:50 f1  
+-rw-r--r--. 1 root root 0 Sep 26 22:53 f2  
+-rw-r--r--. 1 root root 0 Sep 26 22:53 f3  
+[root@centos7 data]# ls >> f3  
+[root@centos7 data]# cat f3  
+f1  
+f2  
+f3  
+```
+
+
+
+### tr 命令    
+tr [OPTION] ...SET1[set2]  
+-c, --complement：反选设定字符。也就是符合 SET1 的部份不做处理，不符合的剩余部份才进行转换   
+-d, --delete：删除指令字符   
+-s, --squeeze-repeats：缩减连续重复的字符成指定的单个字符   
+-t, --truncate-set1：削减 SET1 指定范围，使之与 SET2 设定长度相等  
+--help：显示程序用法信息  
+--version：显示程序本身的版本信息   
+tr ‘a-z’ “A- Z“ < 目标文件   
+errorcmd &> tr “” 错误正确一起输出   
+tr -d “删除内容” < 目标文件   
+
+
+
+## 标准I/O。管道  
+### 单行重定向     
+[root@centos7 data]#cat > app  
+44  
+rr  
+[root@centos7 data]#cat app  
+44  
+rr  
+### 多行重定向  
+```bash
+root@centos7 data]#cat > f2 << EOF  
+my hostname is `hostname`   
+> my uname is `uname`  
+> EOF  
+[root@centos7 data]#cat f2  
+my hostname is centos7.5.localdomain    
+my uname is Linux 
+```  
+### 输出重定向   
+command [OPTION]{>,>>} [File]   
+option:   
+    1   standard output(default)   
+    2   standard error output   
+    &   all output   
+这里可以看到同时拥有的标准输出与标准错误输出都显示在了屏幕上 
+```bash  
+[root@centos7 data]#touch test2   
+[root@centos7 data]#ls -a   
+.   123  banckup 2018-09-25  f2         test2   
+..  app  f1                  grub2.cfg   
+[root@centos7 data]#ls test test2  
+ls: cannot access test: No such file or director》y   
+test2  
+```
+我们要将输出写入到文件中 
+```bash  
+[root@centos7 data]#ls -a  
+.   123  banckup 2018-09-25  f2         test2   
+..  app  f1                  grub2.cfg  test3   
+[root@centos7 data]#ls test2 > test3   
+[root@centos7 data]#cat test3   
+test2   
+```
+
+这里获得的结果就和刚刚的结果正好相反    
+我们也可以将标准输出与标准错误输出都重定向到不同的文件  
+```bash 
+
+[root@centos7 data]#ls test test2 2> test3    
+test2   
+[root@centos7 data]#cat test3   
+ls: cannot access test: No such file or directory   
+```
+
+### 管道   
+
+命令1|命令2
+命令1的标准输出，传入给命令2作为标准输入    
+
+将输出的内容字母变为大写   
+cat file | tr "a-z" “A-Z” 
+```bash  
+[root@centos7 data]# whoami   
+root  
+[root@centos7 data]# tr "a-z" "A-Z"   
+aaabbb  
+AAABBB   
+[root@centos7 data]# whoami | tr "a-z" "A-Z"   
+ROOT   
+```
+
+
+
+### 发送邮件3种方式    
+mial -s mailname wwz    
+mial -s mailname wwz.net < mail.txt   
+cat mial.txt | mial -s mailname wwz    
+
+less： 一页一页的查看输入   
+ls - l /etc | less    
+
+## tar命令   
+tar [option]..[file]   
+示例  
+tar -cf archive.tar foo bar # 从文件 foo 和 bar 创建归档文件archive.tar。   
+tar -tvf archive.tar # 详细列举归档文件 archive.tar中的所有文件。   
+tar -xf archive.tar # 展开归档文件 archive.tar中的所有文件。   
+### 二、 选项详解   
+使用 tar --help命令能够阅读tar命令的详细用法解析。   
+示例   
+tar -cf archive.tar foo bar # 从文件 foo 和 bar 创建归档文件archive.tar。   
+tar -tvf archive.tar # 详细列举归档文件 archive.tar中的所有文件。   
+tar -xf archive.tar # 展开归档文件 archive.tar中的所有文件。   
+选项   
+1、 主要选项:   
+-A, --catenate, --concatenate 追加 tar 文件至归档   
+-c, --create 创建一个新归档   
+-d, --diff, --compare 找出归档和文件系统的差异   
+--delete 从归档(非磁带！)中删除  
+-r, --append 追加文件至归档结尾  
+-t, --list 列出归档内容  
+--test-label 测试归档卷标并退出   
+-u, --update 仅追加比归档中副本更新的文件  
+-x, --extract, --get 从归档中解出文件  
+2、压缩选项  
+-a, --auto-compress 使用归档后缀名来决定压缩程序  
+-j, --bzip2 通过 bzip2 压缩归档  
+-J, --xz 通过 xz 压缩归档  
+-z, --gzip, --gunzip, --ungzip 通过 gzip 压缩归档  
+-Z, --compress, --uncompress 通过 compress 压缩归档   
+3、辅助选项  
+-v, --verbose 详细地列出处理的文件   
+-f, --file=ARCHIVE 使用归档文件或 ARCHIVE 设备，*该选项后必须接打包的.tar**   
+1、将bdir 打包成 bdir.tar  
+命令：tar -cvf bdir.tar bdir  
+2、把1.txt加入bdir.tar  
+命令：tar -rvf bdir.tar 1.txt  
+3、打包adir、bdir到bdir.tar,但不打包其中的a.txt文件  
+命令：tar -cvf bdir.tar --exclude bdir/a.txt adir bdir  
+4、查看bdir.tar中的文件  
+命令：tar -tf bdir.tar，该命令同时可以查看使用-z，-j，-J打包压缩过的文件包中的内容  
+注意如果包中文件过多，可在命令后加|less分屏显示  
+命令：tar -tf bdir.tar|less  
+5、把bdir.tar解压到当前目录下  
+命令：tar -xvf bdir.tar  
+注意，解包操作会覆盖原始文件并且不会有提示。   
+6、将1.txt、adir、bdir打包再用gzip压缩（用其他压缩方式只需替换其中的z为j或J）      
+命令：tar -czvf bdir.tar.gz 1.txt adir bdir   
+查看其中的内容：   
+命令：tar -tf bdir.tar.gz   
+解压包   
+命令：tar -xzvf bdir.tar.gz   
+单独解压出包中个别文件   
+命令：tar -xzvf /目录/bdir.tar.gz bdir/a.txt   
+
+重定向到多个文件   
+命令1 | tee [-a] 文件名 | 命令2    
+-a  不覆盖    
+
+
+
+## 用户、组合权限  
+### 用户user  
+令牌token，identiiy   
+（用户登录时获取令牌）  
+
+### linux组:Groupname   
+管理员：root，0（用户id号uid，linux gid）（linux允许用户名和组名相同）   
+普通组：   
+系统用户：1-499,1-999（Centos7）  
+    对守护进程获取资源进行权限分配  
+登录用户：500+，1000+  
+    交互式登录  
+组 group  
+管理员组：root，0  
+普通组：  
+    系统组：1-499,1-999  
+	普通组：500+，1000+  
+示例：  
+file read write sales  
+name > sales  
+
+
+## ID号  
+用户和组是多对多的关系（一个账号多个组，一个组多个账号）  
+
+
+### 安全上下文  
+   运行中的程序：进程  
+   以进程发起者的身份运行（进程能够资源访问的权限取决于运行用户的身份） ：  
+                   root：/bin/cat  
+				   wwz:  /bin/cat  
+
+				   
+### 组的类别  
+用户的主要组（primary group）  
+	用户必须属于一个且只有一个主组  
+	     创建一个用户，就会创建一个组且同名并作为其主组  
+	 用户的附加组（wupplementary group）   
+	     用户的辅助组可有多个也可无    
+    组用户不影响权限   
+	 
+### 用户和组的配置文件  
+
+/etc/passwd: 用户及其属性信息（名称，UID，主组ID）  
+wwz:x:1000:1000:wwz:/home/wwz:/bin/bash（用：隔开  共7各域）  
+用户名，口令，UID，GID，用户描述信息，  
+用户描述信息修改：  
+chfn wwz  
+chfn--help  
+chfn -f '' -o ''  wwz  
+finger查看信息（要安装）  
+finger  wwz  
+chsh -s /sbin/nologin  wwz  更改bash种类  
+getent passwd  == cat /etc/paddwd  
+getent passwd ftp = cat /etc/paawd/ftp   
+/etc/group  组及其属性信息  
+/etc/shadow 用户密码及其相关属性  
+wwz:$6$.kEEiOK0KWqck26n$0eUVVdLZRkc0.      hvkWqiZ8zOcENaeArl93yCktWrZI62RFfE0jmYNQWa.  
+rdLUrJ.3pKKbqDOqqHMh.8Sqajj7C.::0:99999:7:::   
+用户名，加密算法$6,改口令的时间距离1970年多少天（echo `date +%s`/3600/24 | bc）   
+使用多长时间后才能修改口令，口令过期时间，过期几天前提醒  
+/etc/gshdow  组密码及其相关属性      
+groupmenms -a wang  -g wwz  
+groupmenms -d wang -g wwz  
+临时切换组主组，退出登录则恢复原来的主组  
+newgrp wwz  (将wang用户加入wwz并作为自己的主组，需要密码)  
+gpassd 123456（wang组设置密码）  
+用户账号获取令牌实在登录的时候  
+gpasswd -r  删除组口令  
+gpasswd -a wang wwz（增加wang用户到wwz组）   
+gpasswd -d wang wwz（删除）   
+
+### passwd文件格式   
+login name：登录用命（wwz）   
+passwd：密码（x）   
+UID：用户身份编号（1000）   
+GID：登录默认所在组的编号（1000）   
+GECOS;用户全名或注释   
+home directory：用户主目录（/home/wwz）   
+shell：默认的 /bin/bash/shell   
+### 文件操作   
+vipw  = vi /etc/passwd       
+vigr   
+编辑文件和语法格式检查功能   
+pwck  
+grpck  
+对命令passswd、group格式检查   
+### 用户和组管理命令   
+useradd   (按默认方式创建用户)   
+userdd username     
+usermod -L username (再有口令时（空口令除外）口令加锁)   
+-U  解   
+-u 123456 li  （li账户，UD123456）   
+再新建用户时，默认ID为1234567    
+-u 123456 -o zhang （o ，忽略ID唯一性）   
+usermod -aG webs wwz（将wwz加入到webs组，且保留原来的属性）    
+useradd -d /etc/lo hu （创建hu用，家目录为/ecc/lo）  
+useradd -r app （创建系统用户，默认不会生成家目录，）  
+-c  描述  ''  
+userad -g app app3 (将app作为app3的主组）   
+useradd -N zhang （zhang 的主组加入users)   
+新建账户里家目录的容都在/etc/skel中复制的   
+cp -r /etc/SKEL/. /home/test/   
+useradd -g bin -G wwz opt (创建用户组，并将其加入到wwz，opt为附加组）  
+useradd -r -m app （强制创建家目录—）  
+-M（默认不创建家目录）   
+userdel   
+groupadd  
+groupmod  
+groupdel  
+userdd gentoo -G bin root -s /bin/cash  
+chage wwz  更改信息   
+### file permission   
+r read 文本文件   
+w write 文本文件   
+x excute （二级制文件，人工写的脚本文件）   
+### chmod命令修改权限   
+chmod who opt  per file  
+who u g a o   
+opt  + - =   
+per  w r x   
+赋权表示法(一次可修改多个限）   
+chmod u=，g=，o= file  
+赋值表示法（一次只可修改一个权限）   
+chmod u+ file   
+数字  
+chmod 777 file   
+制定参考文件来设定权限   
+chmod u+ file   
+数字  
+chmod 777 file   
+制定参考文件来设定权限   
+chmod --referance=/var/log f1   
+-R 递归修改(常用语授权和赋值表示法）   
+从属关系：chown chgrp   
+chown [option][:[group]] file   
+chown -R /etc /var   
+### Linux  文件系统上的特殊权限
+1 SUID   4  命令  继承所有者的权限  
+只针对二级制程序（文件）有效，脚本无效  
+2 SGID   2  命令  继承所属组的权限  
+只针对二级制程序（文件）有效，脚本无效  
+作用于目录上，功能，当用户在此目录新建文件时，新文件的所属组会继承目录的所属组  
+3 Sticky 1   
+作用于文件夹目录（只能删除自己的文件）  
+mkdir webdir  
+groupadd  webs  
+gpasswd -a wwz webs  
+gpassd -a  mage webs  
+chgrp webs wendir/   
+chgrp webs wwz  
+### umask 设置权限  
+umask+default（默认q权限） = 666文件|777文件夹  
+umask 数字  可更该umask值  
+通过umask可以更改新建文件文件夹的权限  
+奇数有执行权限，偶数不变，奇数加1   
+666  
+321 umask  
+345（奇数加1）  
+446  当前新建文件的权限  
+-S   查看当前新建文件目录的权限  
+-p   输出可被调用（打印当前umask值）  
+全局设置： /etc/bashrc   局部设置： ~wwz/.bashrc    
+umask -p >> wwz/.bashrc   
+chown u+s /etc/cat  
+chown u-s file  
+chmod 数字（655）file   
+chmod 0+t file（例如用户只能删除自己的文件）  
+chmod 1777 file     
+### 设定文件特定属性   
+chattr option  file   
++i 不能删除，更改，改名（本文件，以及其目录)    
++a  查看追加，但不能删除改名   
+chsattr   file   
+### 访问控制列表   
+ACL  一些文件系统支持，一些不支持   
+df -T查看文件系统类型   
+setfacl -m u:wang：w  f1  创建一个用户wang，权限是W 对于f1的权限   
+setfacl -m g：webs：r f1               
+fetfacl f1  查看最终权限   
+ACL 生效顺序 ：所有者，自定义用户，自定义组，其他人  
+### 抽取文本的工具     
+文件内容：less和 cat  
+文件截取：head和tail  
+按列抽取：cut  
+按关键字抽取：grep  
+### 文件查看命令：   
+cat，tac，rev  
+cat [OPTION]... [FILE]... -E：显示行结束符$ -n：对显示出的每一行进行编号 -A：显示所有控制符 -b：非空行编号 -s：压缩连续的空行成一行   
+tac rev文件查看  
+分页查看文件内容  
+more: 分页查看文件  
+more [OPTIONS...] FILE...  
+-d: 显示翻页及退出提示  
+less：一页一页地查看文件或STDIN输出  
+查看时有用的命令包括：  
+/文本 搜索 文本  
+n/N 跳到下一个 或 上一个匹配  
+less 命令是man命令使用的分页器  
+显示文本前或后行内容  
+head [OPTION]... [FILE]...  
+  -c #: 指定获取前#字节  
+  -n #: 指定获取前#行  
+  -#： 指定行数  
+tail [OPTION]... [FILE]...  
+  -c #: 指定获取后#字节  
+  -n #: 指定获取后#行  
+  -#：同上  
+  -f: 跟踪显示文件fd新追加的内容,常用日志监控  
+相当于 --follow=descriptor  
+  -F: 跟踪文件名，相当于--follow=name --retry  
+tailf 类似tail –f，当文件不增长时并不访问文件  
+   ### 按列抽取文本cut和合并文件paste  
+cut [OPTION]... [FILE]...  
+  -d DELIMITER: 指明分隔符，默认tab  
+  -f FILEDS:  
+  #: 第#个字段  
+  #,#[,#]：离散的多个字段，例如1,3,6  
+  #-#：连续的多个字段, 例如1-6   
+  混合使用：1-3,7   
+  -c 按字符切割   
+  --output-delimiter=STRING指定输出分隔符   
+cut和paste      
+显示文件或STDIN数据的指定列     
+cut -d: -f1 /etc/passwd     
+cat /etc/passwd | cut -d: -f7     
+cut -c2-5 /usr/share/dict/words     
+paste 合并两个文件同行号的列到一行    
+paste [OPTION]... [FILE]...       
+  -d 分隔符：指定分隔符，默认用TAB     
+  -s : 所有行合成一行显示     
+示例：      
+paste f1 f2     
+paste -s f1 f2      
+分析文本的工具    
+文本数据统计：wc    
+整理文本：sort     
+比较文件：diff和patch       
+文本排序sort      
+把整理过的文本显示在STDOUT，不改变原始文件      
+sort [options] file(s)  
+### 常用选项  
+-r 执行反方向（由上至下）整理  
+-R 随机排序  
+-n 执行按数字大小整理  
+-f 选项忽略（fold）字符串中的字符大小写  
+-u 选项（独特，unique）删除输出中的重复行  
+-t c 选项使用c做为字段界定符  
+-k X 选项按照使用c字符分隔的X列来整理能够使用多次  
+uniq    
+uniq命令：从输入中删除前后相接的重复的行  
+uniq [OPTION]... [FILE]...   
+-c: 显示每行重复出现的次数   
+-d: 仅显示重复过的行    
+-u: 仅显示不曾重复的行   
+注：连续且完全相同方为重复  
+常和sort 命令一起配合使用：  
+sort userlist.txt | uniq -c   
+### Linux文本处理三剑客
+grep：文本过滤(模式：pattern)工具  
+grep, egrep, fgrep（不支持正则表达式搜索）  
+sed：stream editor，文本编辑工具  
+awk：Linux上的实现gawk，文本报告生成器  
+### grep命令选项  
+ --color=auto: 对匹配到的文本着色显示  
+ -v: 显示不被pattern匹配到的行  
+ -i: 忽略字符大小写  
+ -n：显示匹配的行号  
+ -c: 统计匹配的行数  
+ -o: 仅显示匹配到的字符串  
+ -q: 静默模式，不输出任何信息  
+ -C #：context, 前后各#行  
+ -e：实现多个选项间的逻辑or关系  
+        grep –e ‘cat ’ -e ‘dog’ file  
+ -w：匹配整个单词   
+ -E：使用ERE   
+ -F：相当于fgrep，不支持正则表达式   
+ -f file: 根据模式文件处理   
+### 正则表达式    
+REGEXP：由一类特殊字符及文本字符所编写的模   式，其中有些字符（元字符）不表示字符字面  意思，   
+而表示控制或通配的功能   
+程序支持:grep,sed,awk,vim,less,nginx,  varnish等   
+分两类：  
+     基本正则表达式：BRE  
+	 扩展正则表达式：ERE  
+	            grep -E，egrep  
+正则表达式引擎：  
+     采用不同的算法，检查处理正则表达式的软  件模块  
+元字符分类：字符匹配，匹配次数，位置锚定，分组   
+man 7 regex   
+### 基本正则表达式元字符   
+ 字符匹配:  
+. 匹配任意单个字符  
+[] 匹配指定范围内的任意单个字符，示例：  [wang] [0-9] [a-z] [a-zA-Z]   
+[^] 匹配指定范围外的任意单个字符  
+[:alnum:] 字母和数字  
+[:alpha:] 代表任何英文大小写字符，亦即   A-Z, a-z  
+[:lower:] 小写字母 [:upper:] 大写字母  
+[:blank:] 空白字符（空格和制表符）  
+[:space:] 水平和垂直的空白字符（比[:blank:]包含的范围广）   
+[:cntrl:] 不可打印的控制字符（退格、删除、警铃...）   
+[:digit:] 十进制数字 [:xdigit:]十六进制数字   
+[:graph:] 可打印的非空白字符   
+[:print:] 可打印字符   
+[:punct:] 标点符号   
+### 正则表达式     
+匹配次数：用在要指定次数的字符后面，用于指定前面的字符要出现的次数               
+   **匹配前面的字符任意次，包括0次      
+   贪婪模式：尽可能长的匹配      
+   .* 任意长度的任意字符      
+   \? 匹配其前面的字符0或1次     
+   \+ 匹配其前面的字符至少1次     
+   \{n\} 匹配前面的字符n次     
+   \{m,n\} 匹配前面的字符至少m次，至多n次       
+   \{,n\} 匹配前面的字符至多n次     
+   \{n,\} 匹配前面的字符至少n次      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    					
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
